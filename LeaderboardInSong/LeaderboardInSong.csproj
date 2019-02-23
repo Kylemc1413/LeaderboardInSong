@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LeaderboardInSong</RootNamespace>
-    <AssemblyName>NewPlugin</AssemblyName>
+    <AssemblyName>LeaderboardInSong</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -38,6 +38,9 @@
     </Reference>
     <Reference Include="BeatSaberCustomUI">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BeatSaberCustomUI.dll</HintPath>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
     </Reference>
     <Reference Include="IllusionInjector">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\IllusionInjector.dll</HintPath>
@@ -74,8 +77,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LeaderboardInfo.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionUtil.cs" />
     <Compile Include="UI\BasicUI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
