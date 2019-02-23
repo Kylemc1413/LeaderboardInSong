@@ -12,19 +12,20 @@ namespace LeaderboardInSong.UI
     {
         public static bool enabled;
         public static bool sortByAcc;
+        public static bool simpleNames;
         public static float x;
         public static float y;
         public static float z;
         public static float scale;
-
         public static void ReadPrefs()
         {
             enabled = Plugin.Config.GetBool("Options", "Enabled", true, true);
             sortByAcc = Plugin.Config.GetBool("Options", "SortByAcc", true, true);
-            x = Plugin.Config.GetFloat("Options", "X", 0f, true);
+            simpleNames = Plugin.Config.GetBool("Options", "SimpleNames", false, true);
+            x = Plugin.Config.GetFloat("Options", "X", -2f, true);
             y = Plugin.Config.GetFloat("Options", "Y", 0.5f, true);
-            z = Plugin.Config.GetFloat("Options", "Z", 20f, true);
-            scale = Plugin.Config.GetFloat("Options", "Scale", 1.0f, true);
+            z = Plugin.Config.GetFloat("Options", "Z", 7f, true);
+            scale = Plugin.Config.GetFloat("Options", "Scale", 0.3f, true);
         }
         public static void CreateUI()
         {
@@ -49,6 +50,10 @@ namespace LeaderboardInSong.UI
             var accOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Order by Percentage", "pluginMenu1", "Order the scores in the leaderboard based on your current accuracy compared to that of the other scores rather than the scores itself");
             accOption.GetValue = sortByAcc;
             accOption.OnToggle += (value) => { sortByAcc = value; Plugin.Config.SetBool("Options", "SortByAcc", value); };
+
+            var simpleNameOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Simplify Names", "pluginMenu1", "Removes excess information that scoresaber adds to scores, such as percentage, modifiers, and performance points");
+            simpleNameOption.GetValue = simpleNames;
+            simpleNameOption.OnToggle += (value) => { simpleNames = value; Plugin.Config.SetBool("Options", "SimpleNames", value); };
 
 
         }

@@ -17,7 +17,7 @@ namespace LeaderboardInSong
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "0.5.0";
+        public string Version => "0.6.0";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         public static LeaderboardInfo playerScore;
@@ -32,6 +32,7 @@ namespace LeaderboardInSong
         internal static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("LeaderboardInSong");
         public void OnApplicationStart()
         {
+            UI.BasicUI.ReadPrefs();
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
         }
@@ -194,6 +195,8 @@ namespace LeaderboardInSong
             int oldIndex = playerScores.IndexOf(playerScore);
             playerScores.Sort(LeaderboardInfo.CompareScore);
             int playerIndex = playerScores.IndexOf(playerScore);
+            int lastPos = playerScores.Count - 1;
+            int secondLastPos = playerScores.Count - 2;
             if (oldIndex != playerIndex)
                 update = true;
             if (update)
@@ -225,45 +228,47 @@ namespace LeaderboardInSong
                             }
                         }
                         break;
-                    case 9:
-                        for (int i = playerIndex - 3; i <= playerIndex + 1; i++)
-                        {
-                            if (i >= 0 && i < playerScores.Count)
-                            {
-                                if (i != playerIndex)
-                                    board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-                                else
-                                    board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-                            }
-                        }
-                        break;
-                    case 10:
-                        for (int i = playerIndex - 4; i <= playerIndex; i++)
-                        {
-                            if (i >= 0 && i < playerScores.Count)
-                            {
-                                if (i != playerIndex)
-                                    board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-                                else
-                                    board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-                            }
-                        }
-                        break;
                     default:
-                        for (int i = playerIndex - 2; i <= playerIndex + 2; i++)
+                        if (playerIndex == secondLastPos)
                         {
-                            if (i >= 0 && i < playerScores.Count)
+                            for (int i = playerIndex - 3; i <= playerIndex + 1; i++)
                             {
-                                if (i != playerIndex)
-                                    board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-                                else
-                                    board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                if (i >= 0 && i < playerScores.Count)
+                                {
+                                    if (i != playerIndex)
+                                        board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                    else
+                                        board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                }
                             }
                         }
+                        else if (playerIndex == lastPos)
+                        {
+                            for (int i = playerIndex - 4; i <= playerIndex; i++)
+                            {
+                                if (i >= 0 && i < playerScores.Count)
+                                {
+                                    if (i != playerIndex)
+                                        board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                    else
+                                        board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                }
+                            }
+                        }
+                        else
+                            for (int i = playerIndex - 2; i <= playerIndex + 2; i++)
+                            {
+                                if (i >= 0 && i < playerScores.Count)
+                                {
+                                    if (i != playerIndex)
+                                        board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                    else
+                                        board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
+                                }
+                            }
                         break;
 
                 }
-
                 board._customListTableView.ReloadData();
             }
             else
@@ -284,7 +289,12 @@ namespace LeaderboardInSong
                         playerPos = 3;
                         break;
                     default:
-                        playerPos = 2;
+                        if (playerIndex == secondLastPos)
+                            playerPos = 3;
+                        else if (playerIndex == lastPos)
+                            playerPos = 4;
+                        else
+                            playerPos = 2;
                         break;
                 }
                 board.Data[playerPos].text = $"<#59B0F4>{playerScore.playerName}" + "\t" + $"{playerScore.playerScore}";
@@ -308,7 +318,14 @@ namespace LeaderboardInSong
                 {
                     if (text.name == "PlayerName")
                     {
-                        playerName = text.text;
+                        if (!UI.BasicUI.simpleNames)
+                            playerName = text.text;
+                        else
+                        {
+                            playerName = text.text.Split('>', '<')[2];
+                            playerName = playerName.Remove(playerName.Length - 3, 3);
+                        }
+
                     }
                     if (text.name == "Rank")
                     {
@@ -320,16 +337,21 @@ namespace LeaderboardInSong
                     }
 
                 }
-                playerScores.Add(new LeaderboardInfo(playerName, score, pos));
+                LeaderboardInfo entry = new LeaderboardInfo(playerName, score, pos);
+                if (!playerScores.Any(x => (x.playerPosition == entry.playerPosition && x.playerScore == entry.playerScore)))
+                    playerScores.Add(entry);
+                else
+                    Log("Entry already present");
             }
             playerScore = new LeaderboardInfo(PlayerName, 0, 0);
-            playerScores.Add(playerScore);
-        //    foreach (LeaderboardInfo entry in playerScores)
-        //    {
-        //        Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
-       //         Log("Name: " + entry.playerName);
-      //          Log("Score: " + entry.playerScore);
-      //      }
+            if (!playerScores.Contains(playerScore))
+                playerScores.Add(playerScore);
+   //         foreach (LeaderboardInfo entry in playerScores)
+     //       {
+       //         Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
+         //       Log("Name: " + entry.playerName);
+           //     Log("Score: " + entry.playerScore);
+             //}
         }
         public static void Log(string message)
         {
