@@ -17,6 +17,7 @@ namespace LeaderboardInSong.UI
         public static float y;
         public static float z;
         public static float scale;
+        public static float refreshTime;
         public static void ReadPrefs()
         {
             enabled = Plugin.Config.GetBool("Options", "Enabled", true, true);
@@ -26,6 +27,7 @@ namespace LeaderboardInSong.UI
             y = Plugin.Config.GetFloat("Options", "Y", 0.5f, true);
             z = Plugin.Config.GetFloat("Options", "Z", 7f, true);
             scale = Plugin.Config.GetFloat("Options", "Scale", 0.3f, true);
+            refreshTime = Plugin.Config.GetFloat("Options", "RefreshTime", 0.5f, true);
         }
         public static void CreateUI()
         {

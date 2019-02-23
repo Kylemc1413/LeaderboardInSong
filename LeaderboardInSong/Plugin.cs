@@ -20,6 +20,7 @@ namespace LeaderboardInSong
         public string Version => "0.6.0";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
+        internal static BeatmapDifficultyViewController DifficultyViewController;
         public static LeaderboardInfo playerScore;
         public static CustomListViewController board;
         internal static ScoreController scoreController;
@@ -52,6 +53,12 @@ namespace LeaderboardInSong
                 {
                     standardLevelDetailView.didPressPlayButtonEvent += StandardLevelDetailView_didPressPlayButtonEvent;
                 }
+                if (DifficultyViewController == null)
+                    DifficultyViewController = Resources.FindObjectsOfTypeAll<BeatmapDifficultyViewController>().FirstOrDefault();
+                if(DifficultyViewController != null)
+                {
+                    DifficultyViewController.didSelectDifficultyEvent += DifficultyViewController_didSelectDifficultyEvent;
+                }
                 if (PlayerName == "")
                     PlayerName = BS_Utils.Gameplay.GetUserInfo.GetUserName();
 
@@ -79,9 +86,15 @@ namespace LeaderboardInSong
 
 
         }
+
+        private void DifficultyViewController_didSelectDifficultyEvent(BeatmapDifficultyViewController arg1, IDifficultyBeatmap arg2)
+        {
+            playerScores.Clear();
+        }
+
         private IEnumerator UpdateBoardFixed()
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(UI.BasicUI.refreshTime);
             if (gameScene)
             {
                 UpdateBoard();
@@ -305,7 +318,6 @@ namespace LeaderboardInSong
 
         public static void GrabScores()
         {
-            playerScores.Clear();
             var boards = Resources.FindObjectsOfTypeAll<PlatformLeaderboardViewController>().First().GetComponentInChildren<LeaderboardTableView>().gameObject
                 .transform.Find("Viewport").Find("Content").GetComponentsInChildren<LeaderboardTableCell>();
             foreach (LeaderboardTableCell cell in boards)
