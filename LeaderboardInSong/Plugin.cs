@@ -12,12 +12,14 @@ using UnityEngine.UI;
 using TMPro;
 using CustomUI.BeatSaber;
 using BS_Utils;
+using Harmony;
+
 namespace LeaderboardInSong
 {
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "0.6.0";
+        public string Version => "0.9.0";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         internal static BeatmapDifficultyViewController DifficultyViewController;
@@ -31,11 +33,14 @@ namespace LeaderboardInSong
         internal static StandardLevelSceneSetupDataSO levelSceneSetupDataSO;
         internal static bool gameScene;
         internal static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("LeaderboardInSong");
+        public static HarmonyInstance harmony;
         public void OnApplicationStart()
         {
             UI.BasicUI.ReadPrefs();
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.LeaderboardInSong");
+            ApplyPatches();
         }
 
         private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
@@ -55,7 +60,7 @@ namespace LeaderboardInSong
                 }
                 if (DifficultyViewController == null)
                     DifficultyViewController = Resources.FindObjectsOfTypeAll<BeatmapDifficultyViewController>().FirstOrDefault();
-                if(DifficultyViewController != null)
+                if (DifficultyViewController != null)
                 {
                     DifficultyViewController.didSelectDifficultyEvent += DifficultyViewController_didSelectDifficultyEvent;
                 }
@@ -152,6 +157,7 @@ namespace LeaderboardInSong
             try
             {
                 //    Log("Sorting Scores");
+                Log("PlayerScores Count: " + playerScores.Count);
                 playerScores.Sort(LeaderboardInfo.CompareScore);
                 GameObject canvasobj = new GameObject("LeaderboardInSong");
                 Canvas canvas = canvasobj.AddComponent<Canvas>();
@@ -169,16 +175,15 @@ namespace LeaderboardInSong
                 board.transform.localPosition = new Vector3(UI.BasicUI.x, UI.BasicUI.y, UI.BasicUI.z);
                 //           Log("Created board");
                 int playerIndex = playerScores.IndexOf(playerScore);
+          //      Log("Player Index: " + playerIndex);
                 for (int i = playerIndex - 4; i <= playerIndex; i++)
                 {
-
                     if (i >= 0 && i < playerScores.Count)
                     {
                         if (i != playerIndex)
                             board.Data.Add(new CustomCellInfo($"{playerScores[i].playerPosition}" + " | " + $"{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
                         else
                             board.Data.Add(new CustomCellInfo($"<#59B0F4>{playerScores[i].playerName}" + " | " + $"{playerScores[i].playerScore}", ""));
-
                     }
                 }
                 //                  Log("Filled Data");
@@ -214,6 +219,7 @@ namespace LeaderboardInSong
                 update = true;
             if (update)
             {
+          //      Log("Updating");
                 board.Data.Clear();
                 switch (playerIndex)
                 {
@@ -280,12 +286,13 @@ namespace LeaderboardInSong
                                 }
                             }
                         break;
-
                 }
+          //      Log("Successful Update");
                 board._customListTableView.ReloadData();
             }
             else
             {
+             //   Log("Not Updating");
                 int playerPos = 4;
                 switch (playerIndex)
                 {
@@ -294,12 +301,6 @@ namespace LeaderboardInSong
                         break;
                     case 1:
                         playerPos = 1;
-                        break;
-                    case 10:
-                        playerPos = 4;
-                        break;
-                    case 9:
-                        playerPos = 3;
                         break;
                     default:
                         if (playerIndex == secondLastPos)
@@ -310,7 +311,11 @@ namespace LeaderboardInSong
                             playerPos = 2;
                         break;
                 }
-                board.Data[playerPos].text = $"<#59B0F4>{playerScore.playerName}" + "\t" + $"{playerScore.playerScore}";
+               // Log("Not Updating 2");
+             //   Log("Count: " + board.Data.Count);
+           //     Log("PlayerPos: " + playerPos);
+                board.Data[playerPos].text = $"<#59B0F4>{playerScore.playerName}" + " | " + $"{playerScore.playerScore}";
+         //       Log("Successful Not Updating");
                 board._customListTableView.ReloadData();
             }
 
@@ -355,19 +360,39 @@ namespace LeaderboardInSong
                 else
                     Log("Entry already present");
             }
-            playerScore = new LeaderboardInfo(PlayerName, 0, 0);
             if (!playerScores.Contains(playerScore))
-                playerScores.Add(playerScore);
-   //         foreach (LeaderboardInfo entry in playerScores)
-     //       {
-       //         Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
-         //       Log("Name: " + entry.playerName);
-           //     Log("Score: " + entry.playerScore);
-             //}
+            {
+                playerScore = new LeaderboardInfo(PlayerName, 0, 0);
+                if (!playerScores.Any(x => (x.playerPosition == 0)))
+                    playerScores.Add(playerScore);
+            }
+
+            //foreach (LeaderboardInfo entry in playerScores)
+                 //  {
+               //      Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
+             //      Log("Name: " + entry.playerName);
+           //      Log("Score: " + entry.playerScore);
+            //}
         }
         public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", "LeaderboardInSong", message);
+        }
+
+        public static void ApplyPatches()
+        {
+
+            try
+            {
+
+                harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
         }
 
     }
