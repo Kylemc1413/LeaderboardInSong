@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using IllusionPlugin;
 using UnityEngine.UI;
-using TMPro;
 using CustomUI.BeatSaber;
 using BS_Utils;
 using Harmony;
@@ -19,7 +18,7 @@ namespace LeaderboardInSong
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "0.9.0";
+        public string Version => "1.1.0";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         internal static BeatmapDifficultyViewController DifficultyViewController;
@@ -30,7 +29,7 @@ namespace LeaderboardInSong
         internal static int CurrentScore;
         internal static int maxPossibleScore;
         internal static int currentMaxPossibleScore;
-        internal static StandardLevelSceneSetupDataSO levelSceneSetupDataSO;
+        internal static BS_Utils.Gameplay.LevelData levelSceneSetupDataSO;
         internal static bool gameScene;
         internal static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("LeaderboardInSong");
         public static HarmonyInstance harmony;
@@ -50,7 +49,7 @@ namespace LeaderboardInSong
             maxPossibleScore = 0;
             currentMaxPossibleScore = 0;
             gameScene = false;
-            if (newScene.name == "Menu")
+            if (newScene.name == "MenuCore")
             {
                 if (standardLevelDetailView == null)
                     standardLevelDetailView = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().FirstOrDefault();
@@ -74,10 +73,10 @@ namespace LeaderboardInSong
                 gameScene = true;
                 if (UI.BasicUI.enabled && !BS_Utils.Gameplay.Gamemode.IsIsolatedLevel)
                 {
-                    levelSceneSetupDataSO = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetupDataSO>().FirstOrDefault();
+                    levelSceneSetupDataSO = BS_Utils.Plugin.LevelData;
                     if (levelSceneSetupDataSO != null)
                     {
-                        maxPossibleScore = ScoreController.MaxScoreForNumberOfNotes(levelSceneSetupDataSO.difficultyBeatmap.beatmapData.notesCount);
+                        maxPossibleScore = ScoreController.MaxScoreForNumberOfNotes(levelSceneSetupDataSO.GameplayCoreSceneSetupData.difficultyBeatmap.beatmapData.notesCount);
                     }
                     scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
                     if (scoreController != null)
@@ -121,7 +120,7 @@ namespace LeaderboardInSong
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
         {
             //Create GameplayOptions/SettingsUI if using either
-            if (scene.name == "Menu")
+            if (scene.name == "MenuCore")
                 UI.BasicUI.CreateUI();
 
         }

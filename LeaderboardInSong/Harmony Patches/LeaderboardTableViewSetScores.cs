@@ -18,7 +18,7 @@ namespace LeaderboardInSong.Harmony_Patches
     {
         static void Postfix(List<LeaderboardTableView.ScoreData> scores, int specialScorePos)
         {
-         //   Plugin.GrabScores();
+            Plugin.GrabScores();
         }
     }
 }

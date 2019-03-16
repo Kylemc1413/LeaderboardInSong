@@ -40,13 +40,12 @@ namespace LeaderboardInSong.UI
 
         public static void CreateGameplayOptionsUI()
         {
-            enabled = IllusionPlugin.ModPrefs.GetBool("LeaderboardInSong", "Enabled", true, true);
             //Example submenu option
             var pluginSubmenu = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.ModifiersLeft, "LeaderboardInSong", "MainMenu", "pluginMenu1", "Settings for the LeaderboardInSong Plugin");
 
             //Example Toggle Option within a submenu
             var enableOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Enabled", "pluginMenu1", "Enable the in song leaderboard. Compares your score in the song against those on the leaderboard page selected when starting the song");
-            enableOption.GetValue = enabled;
+            enableOption.GetValue = Plugin.Config.GetBool("Options", "Enabled", true, true);
             enableOption.OnToggle += (value) => { enabled = value; Plugin.Config.SetBool("Options", "Enabled", value); };
 
             var accOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Order by Percentage", "pluginMenu1", "Order the scores in the leaderboard based on your current accuracy compared to that of the other scores rather than the scores itself");
