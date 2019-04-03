@@ -18,7 +18,7 @@ namespace LeaderboardInSong
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "1.1.0";
+        public string Version => "1.1.2";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         internal static BeatmapDifficultyViewController DifficultyViewController;
@@ -174,7 +174,7 @@ namespace LeaderboardInSong
                 board.transform.localPosition = new Vector3(UI.BasicUI.x, UI.BasicUI.y, UI.BasicUI.z);
                 //           Log("Created board");
                 int playerIndex = playerScores.IndexOf(playerScore);
-          //      Log("Player Index: " + playerIndex);
+                //      Log("Player Index: " + playerIndex);
                 for (int i = playerIndex - 4; i <= playerIndex; i++)
                 {
                     if (i >= 0 && i < playerScores.Count)
@@ -218,7 +218,7 @@ namespace LeaderboardInSong
                 update = true;
             if (update)
             {
-          //      Log("Updating");
+                //      Log("Updating");
                 board.Data.Clear();
                 switch (playerIndex)
                 {
@@ -286,12 +286,12 @@ namespace LeaderboardInSong
                             }
                         break;
                 }
-          //      Log("Successful Update");
+                //      Log("Successful Update");
                 board._customListTableView.ReloadData();
             }
             else
             {
-             //   Log("Not Updating");
+                //   Log("Not Updating");
                 int playerPos = 4;
                 switch (playerIndex)
                 {
@@ -310,11 +310,11 @@ namespace LeaderboardInSong
                             playerPos = 2;
                         break;
                 }
-               // Log("Not Updating 2");
-             //   Log("Count: " + board.Data.Count);
-           //     Log("PlayerPos: " + playerPos);
+                // Log("Not Updating 2");
+                //   Log("Count: " + board.Data.Count);
+                //     Log("PlayerPos: " + playerPos);
                 board.Data[playerPos].text = $"<#59B0F4>{playerScore.playerName}" + " | " + $"{playerScore.playerScore}";
-         //       Log("Successful Not Updating");
+                //       Log("Successful Not Updating");
                 board._customListTableView.ReloadData();
             }
 
@@ -322,43 +322,53 @@ namespace LeaderboardInSong
 
         public static void GrabScores()
         {
-            var boards = Resources.FindObjectsOfTypeAll<PlatformLeaderboardViewController>().First().GetComponentInChildren<LeaderboardTableView>().gameObject
-                .transform.Find("Viewport").Find("Content").GetComponentsInChildren<LeaderboardTableCell>();
-            foreach (LeaderboardTableCell cell in boards)
-            {
-                var cellTexts = cell.GetComponentsInChildren<TextMeshProUGUI>();
-                string playerName = "";
-                int pos = -1;
-                int score = -1;
-                foreach (TextMeshProUGUI text in cellTexts)
+            var boards = Resources.FindObjectsOfTypeAll<PlatformLeaderboardViewController>().First()?.GetComponentInChildren<LeaderboardTableView>()?.gameObject?
+                .transform?.Find("Viewport")?.Find("Content")?.GetComponentsInChildren<LeaderboardTableCell>();
+            if (boards != null)
+                foreach (LeaderboardTableCell cell in boards)
                 {
-                    if (text.name == "PlayerName")
+                    var cellTexts = cell.GetComponentsInChildren<TextMeshProUGUI>();
+                    string playerName = "";
+                    int pos = -1;
+                    int score = -1;
+                    foreach (TextMeshProUGUI text in cellTexts)
                     {
-                        if (!UI.BasicUI.simpleNames)
-                            playerName = text.text;
-                        else
+                        if (text.name == "PlayerName")
                         {
-                            playerName = text.text.Split('>', '<')[2];
-                            playerName = playerName.Remove(playerName.Length - 3, 3);
+                            playerName = text.text;
+                            if (UI.BasicUI.simpleNames)
+                            {
+                                if (text.text.Contains("<size=85%>"))
+                                {
+                                    playerName = text.text.Split('>', '<')[2];
+                                    playerName = playerName.Remove(Mathf.Clamp(playerName.Length - 3, 0, playerName.Length), 3);
+
+                                }
+                                else if (text.text.Contains("<size=75%>"))
+                                {
+                                    playerName = text.text.Split('<')[0];
+                                    playerName = playerName.Remove(Mathf.Clamp(playerName.Length - 3, 0, playerName.Length), 3);
+                                }
+
+                            }
+
+                        }
+                        if (text.name == "Rank")
+                        {
+                            pos = int.Parse(text.text);
+                        }
+                        if (text.name == "Score")
+                        {
+                            score = int.Parse(text.text.Replace(" ", ""));
                         }
 
                     }
-                    if (text.name == "Rank")
-                    {
-                        pos = int.Parse(text.text);
-                    }
-                    if (text.name == "Score")
-                    {
-                        score = int.Parse(text.text.Replace(" ", ""));
-                    }
-
+                    LeaderboardInfo entry = new LeaderboardInfo(playerName, score, pos);
+                    if (!playerScores.Any(x => (x.playerPosition == entry.playerPosition && x.playerScore == entry.playerScore)))
+                        playerScores.Add(entry);
+                    //        else
+                    //          Log("Entry already present");
                 }
-                LeaderboardInfo entry = new LeaderboardInfo(playerName, score, pos);
-                if (!playerScores.Any(x => (x.playerPosition == entry.playerPosition && x.playerScore == entry.playerScore)))
-                    playerScores.Add(entry);
-                else
-                    Log("Entry already present");
-            }
             if (!playerScores.Contains(playerScore))
             {
                 playerScore = new LeaderboardInfo(PlayerName, 0, 0);
@@ -367,10 +377,10 @@ namespace LeaderboardInSong
             }
 
             //foreach (LeaderboardInfo entry in playerScores)
-                 //  {
-               //      Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
-             //      Log("Name: " + entry.playerName);
-           //      Log("Score: " + entry.playerScore);
+            //  {
+            //      Log("Yoinking Leaderboard Entry for Position: " + entry.playerPosition);
+            //      Log("Name: " + entry.playerName);
+            //      Log("Score: " + entry.playerScore);
             //}
         }
         public static void Log(string message)
