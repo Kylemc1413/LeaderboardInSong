@@ -39,7 +39,7 @@ namespace LeaderboardInSong
                     return 0;
             else
                 if (Plugin.maxPossibleScore == 0)
-                Plugin.maxPossibleScore = ScoreController.MaxScoreForNumberOfNotes(Plugin.levelSceneSetupDataSO.GameplayCoreSceneSetupData.difficultyBeatmap.beatmapData.notesCount);
+                Plugin.maxPossibleScore = ScoreController.MaxRawScoreForNumberOfNotes(Plugin.levelSceneSetupDataSO.GameplayCoreSceneSetupData.difficultyBeatmap.beatmapData.notesCount);
                 return (float)playerScore / Plugin.maxPossibleScore;
         }
     }

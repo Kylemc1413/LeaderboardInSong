@@ -18,7 +18,7 @@ namespace LeaderboardInSong
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "1.1.2";
+        public string Version => "1.1.3";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         internal static BeatmapDifficultyViewController DifficultyViewController;
@@ -76,7 +76,7 @@ namespace LeaderboardInSong
                     levelSceneSetupDataSO = BS_Utils.Plugin.LevelData;
                     if (levelSceneSetupDataSO != null)
                     {
-                        maxPossibleScore = ScoreController.MaxScoreForNumberOfNotes(levelSceneSetupDataSO.GameplayCoreSceneSetupData.difficultyBeatmap.beatmapData.notesCount);
+                        maxPossibleScore = ScoreController.MaxRawScoreForNumberOfNotes(levelSceneSetupDataSO.GameplayCoreSceneSetupData.difficultyBeatmap.beatmapData.notesCount);
                     }
                     scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
                     if (scoreController != null)
@@ -106,10 +106,10 @@ namespace LeaderboardInSong
             }
 
         }
-        private void ScoreController_scoreDidChangeEvent(int num)
+        private void ScoreController_scoreDidChangeEvent(int rawScore, int modifiedScore)
         {
-            CurrentScore = num;
-            currentMaxPossibleScore = scoreController.GetField<int>("_immediateMaxPossibleScore");
+            CurrentScore = rawScore;
+            currentMaxPossibleScore = (int)scoreController.immediateMaxPossibleRawScore;
         }
 
         private void StandardLevelDetailView_didPressPlayButtonEvent(StandardLevelDetailViewController obj)
