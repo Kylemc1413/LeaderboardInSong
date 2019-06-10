@@ -18,7 +18,7 @@ namespace LeaderboardInSong
     public class Plugin : IPlugin
     {
         public string Name => "LeaderboardInSong";
-        public string Version => "1.1.3";
+        public string Version => "1.1.4";
         public static List<LeaderboardInfo> playerScores = new List<LeaderboardInfo>();
         internal static StandardLevelDetailViewController standardLevelDetailView;
         internal static BeatmapDifficultyViewController DifficultyViewController;
